@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/dummy_data.dart';
-import '../../../core/theme.dart';
+import '../../../core/theme/theme.dart';
 
 class CartItemCard extends StatelessWidget {
   final CartItem cartItem;
