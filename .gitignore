@@ -11,6 +11,14 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+pubspec.lock
+
+
+# Generated
+*.g.dart
+*.gen.dart
+*.config.dart
+*.freezed.dart
 
 # IntelliJ related
 *.iml
