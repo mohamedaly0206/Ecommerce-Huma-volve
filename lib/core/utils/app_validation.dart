@@ -3,12 +3,6 @@ abstract class AppValidators {
 
   static final RegExp _emailRegex = RegExp(r'^[\w.-]+@([\w-]+\.)+[\w-]{2,}$');
 
-  static final RegExp _passwordRegex = RegExp(
-    r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[#?!@$%^&*-]).{8,}$',
-  );
-
-  static final RegExp _nameRegex = RegExp(r'^[a-zA-Z]+$');
-
   static final RegExp _phoneRegex = RegExp(r'^\+20(10|11|12|15)[0-9]{8}$');
 
   static String? validateEmail(String? email) {
@@ -30,12 +24,8 @@ abstract class AppValidators {
       return 'Password is required';
     }
 
-    if (password.length < 8) {
-      return 'Password must be at least 8 characters long';
-    }
-
-    if (!_passwordRegex.hasMatch(password)) {
-      return 'Password must contain uppercase, lowercase, number, and special character';
+    if (password.length < 6) {
+      return 'Password must be at least 6 characters long';
     }
 
     return null;
@@ -53,9 +43,9 @@ abstract class AppValidators {
     return null;
   }
 
-  static String? validateEmptyTextFormField(String? value) {
+  static String? validateEmptyTextFormField(String? value,{required String fieldName}) {
     if (value == null || value.trim().isEmpty) {
-      return 'This field is required';
+      return '$fieldName is required';
     }
 
     return null;
@@ -72,9 +62,7 @@ abstract class AppValidators {
       return '$fieldName must be at least 3 characters long';
     }
 
-    if (!_nameRegex.hasMatch(name)) {
-      return '$fieldName must contain English letters only, without spaces';
-    }
+  
 
     return null;
   }

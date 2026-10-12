@@ -1,11 +1,13 @@
-
+import 'package:ecommerce_app_huma_volve/core/routes/app_routes.dart';
+import 'package:ecommerce_app_huma_volve/core/utils/app_validation.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/login/domain/entities/request/sign_in_data_request_entity.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/login/presentation/cubit/sign_in_cubit.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/login/presentation/cubit/sign_in_state.dart';
 import 'package:flutter/material.dart';
-
-import '../../../../core/widgets/custom_text_field.dart';
-import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/theme.dart';
-import '../../../main_navigation/screens/main_navigation_screen.dart';
-import '../../sign_up/screens/sign_up_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../../core/widgets/custom_text_field.dart';
+import '../../../../../core/widgets/primary_button.dart';
+import '../../../../../core/theme/theme.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,16 +18,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController emailController;
-  late final TextEditingController passwordController;
-
-  @override
-  void initState() {
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
-
-    super.initState();
-  }
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   void dispose() {
@@ -51,15 +45,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 32),
                 Text(
                   'Welcome Back!',
-                  style: Theme.of(context).textTheme.displayLarge
-                      ?.copyWith(fontSize: 32),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.displayLarge?.copyWith(fontSize: 32),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Login to continue your shopping',
-                  style: Theme.of(context).textTheme.bodyMedium
-                      ?.copyWith(fontSize: 16),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 64),
@@ -69,13 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   prefixIcon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
+                    return AppValidators.validateEmail(value);
                   },
                 ),
                 const SizedBox(height: 20),
@@ -85,13 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   prefixIcon: Icons.lock_outline,
                   isPassword: true,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
+                    return AppValidators.validatePassword(value);
                   },
                 ),
                 const SizedBox(height: 16),
@@ -106,16 +90,43 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                PrimaryButton(
-                  text: 'Login',
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (context) => MainNavigationScreen(),
+                BlocConsumer<SignInCubit, SignInState>(
+                  listener: (context, state) {
+                    if (state.signInState.data != null) {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        AppRoutes.homeScreen,
+                        (route) => false,
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Login successful!'),
+                        ),
+                      );
+                    } else if (state.signInState.errorMessage != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.signInState.errorMessage!),
+                          backgroundColor: Colors.red,
                         ),
                       );
                     }
+                  },
+                  builder: (context, state) {
+                    return PrimaryButton(
+                      text: 'Login',
+                      isLoading: state.signInState.isLoading,
+                      onPressed: () {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          context.read<SignInCubit>().signIn(
+                            signInDataRequest: SignInDataRequestEntity(
+                              email: emailController.text.trim(),
+                              password: passwordController.text.trim(),
+                            ),
+                          );
+                        }
+                      },
+                    );
                   },
                 ),
                 const SizedBox(height: 24),
@@ -125,28 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text('Don\'t have an account? '),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder: (
-                              context,
-                              animation,
-                              secondaryAnimation,
-                            ) => const SignUpScreen(),
-                            transitionsBuilder:
-                                (
-                                  context,
-                                  animation,
-                                  secondaryAnimation,
-                                  child,
-                                ) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  );
-                                },
-                          ),
-                        );
+                        Navigator.pushNamed(context, AppRoutes.signUpScreen);
                       },
                       child: Text(
                         'Sign Up',

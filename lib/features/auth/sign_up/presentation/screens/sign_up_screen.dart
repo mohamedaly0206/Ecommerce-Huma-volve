@@ -1,9 +1,13 @@
+import 'package:ecommerce_app_huma_volve/core/utils/app_validation.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/sign_up/domain/entities/request/sign_up_data_request_entity.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/sign_up/presentation/cubit/sign_up_cubit.dart';
+import 'package:ecommerce_app_huma_volve/features/auth/sign_up/presentation/cubit/sign_up_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/widgets/custom_text_field.dart';
-import '../../../../core/widgets/primary_button.dart';
-import '../../../../core/theme.dart';
-import '../../login/screens/login_screen.dart';
+import '../../../../../core/widgets/custom_text_field.dart';
+import '../../../../../core/widgets/primary_button.dart';
+import '../../../../../core/theme/theme.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -14,18 +18,9 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController nameController;
-  late final TextEditingController emailController;
-  late final TextEditingController passwordController;
-
-  @override
-  void initState() {
-    nameController = TextEditingController();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
-
-    super.initState();
-  }
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   void dispose() {
@@ -52,15 +47,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 32),
                 Text(
                   'Create Account',
-                  style: Theme.of(context).textTheme.displayLarge
-                      ?.copyWith(fontSize: 32),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.displayLarge?.copyWith(fontSize: 32),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Sign up to get started',
-                  style: Theme.of(context).textTheme.bodyMedium
-                      ?.copyWith(fontSize: 16),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),
@@ -69,10 +66,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   hintText: 'Full Name',
                   prefixIcon: Icons.person_outline,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your full name';
-                    }
-                    return null;
+                    return AppValidators.validateName(value, fieldName: 'Name');
                   },
                 ),
                 const SizedBox(height: 20),
@@ -82,13 +76,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   prefixIcon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
+                    return AppValidators.validateEmail(value);
                   },
                 ),
                 const SizedBox(height: 20),
@@ -98,27 +86,44 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   prefixIcon: Icons.lock_outline,
                   isPassword: true,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
+                    return AppValidators.validatePassword(value);
                   },
                 ),
+
                 const SizedBox(height: 40),
-                PrimaryButton(
-                  text: 'Sign Up',
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
+                BlocConsumer<SignUpCubit, SignUpState>(
+                  listener: (context, state) {
+                    if (state.signUpState.data != null) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Sign Up Successful! Please log in.'),
                         ),
                       );
+                    } else if (state.signUpState.errorMessage != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.signUpState.errorMessage!,
+                       ), backgroundColor: Colors.red,),
+                      );
                     }
+                  },
+                  builder: (context, state) {
+                    return PrimaryButton(
+                      text: 'Sign Up',
+                      isLoading: state.signUpState.isLoading,
+                      onPressed: () async {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          final signUpDataRequest = SignUpDataRequestEntity(
+                            name: nameController.text.trim(),
+                            email: emailController.text.trim(),
+                            password: passwordController.text.trim(),
+                          );
+                          await context.read<SignUpCubit>().signUp(
+                                signUpDataRequest: signUpDataRequest,
+                              );
+                        }
+                      },
+                    );
                   },
                 ),
                 const SizedBox(height: 24),
@@ -128,28 +133,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     const Text('Already have an account? '),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushReplacement(
-                          context,
-                          PageRouteBuilder(
-                            pageBuilder: (
-                              context,
-                              animation,
-                              secondaryAnimation,
-                            ) => const LoginScreen(),
-                            transitionsBuilder:
-                                (
-                                  context,
-                                  animation,
-                                  secondaryAnimation,
-                                  child,
-                                ) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: child,
-                                  );
-                                },
-                          ),
-                        );
+                        Navigator.pop(context);
                       },
                       child: Text(
                         'Login',

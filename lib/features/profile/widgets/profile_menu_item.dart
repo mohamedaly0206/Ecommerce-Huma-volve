@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme.dart';
+import '../../../core/theme/theme.dart';
 
 class ProfileMenuItem extends StatelessWidget {
   final IconData icon;
