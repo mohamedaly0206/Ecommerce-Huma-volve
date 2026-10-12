@@ -5,4 +5,9 @@ abstract class ApiEndpoints {
   //auth
   static const String login = '$baseUrl/auth/login';
   static const String signUp = '$baseUrl/users';
+  //home
+  static const String categories = '$baseUrl/categories';
+  static const String products = '$baseUrl/products';
+  static String categoryProducts(int categoryId) =>
+      '$categories/$categoryId/products';
 }

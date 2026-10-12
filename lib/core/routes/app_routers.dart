@@ -4,7 +4,7 @@ import 'package:ecommerce_app_huma_volve/features/auth/login/presentation/cubit/
 import 'package:ecommerce_app_huma_volve/features/auth/login/presentation/screens/login_screen.dart';
 import 'package:ecommerce_app_huma_volve/features/auth/sign_up/presentation/cubit/sign_up_cubit.dart';
 import 'package:ecommerce_app_huma_volve/features/auth/sign_up/presentation/screens/sign_up_screen.dart';
-import 'package:ecommerce_app_huma_volve/features/home/screens/home_screen.dart';
+import 'package:ecommerce_app_huma_volve/features/main_navigation/screens/main_navigation_screen.dart';
 import 'package:ecommerce_app_huma_volve/features/splash/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,8 +31,8 @@ abstract class AppRouters {
           ),
         );
         
-      case AppRoutes.homeScreen:
-        return _fadeRoute(const HomeScreen());
+      case AppRoutes.mainNavigationScreen:
+        return _fadeRoute(const MainNavigationScreen());
         
       default:
         return MaterialPageRoute(

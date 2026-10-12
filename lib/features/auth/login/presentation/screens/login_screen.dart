@@ -95,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (state.signInState.data != null) {
                       Navigator.pushNamedAndRemoveUntil(
                         context,
-                        AppRoutes.homeScreen,
+                        AppRoutes.mainNavigationScreen,
                         (route) => false,
                       );
                       ScaffoldMessenger.of(context).showSnackBar(
