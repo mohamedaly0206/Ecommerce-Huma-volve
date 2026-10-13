@@ -33,4 +33,14 @@ abstract class AppStrings {
   static const String serverDefaultError =
       'Opps there was an error, please try again';
   static const String userIdNotFound = 'User not found, please login again';
+
+  // home
+  static const String explore = 'Explore';
+  static const String bestTrendyCollection = 'Best trendy collection!';
+  static const String searchClothes = 'Search clothes...';
+  static const String noProductsFound = 'No products found';
+  static const String noCategoriesFound = 'No categories found';
+  static const String retry = 'Retry';
+  static const String all = 'All';
+  static const String addedToCart = 'added to cart';
 }
