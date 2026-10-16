@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../config/di/di.dart';
 import '../../../../core/dummy_data.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/values/app_strings.dart';
@@ -17,10 +16,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<HomeCubit>()..init(),
-      child: const _HomeScreenContent(),
-    );
+    return _HomeScreenContent();
   }
 }
 
@@ -33,6 +29,7 @@ class _HomeScreenContent extends StatefulWidget {
 
 class _HomeScreenContentState extends State<_HomeScreenContent> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   String _searchQuery = '';
 
   @override
@@ -43,11 +40,26 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
         _searchQuery = _searchController.text.trim().toLowerCase();
       });
     });
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_searchQuery.isEmpty && _isBottom) {
+      context.read<HomeCubit>().loadMoreProducts();
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll - 200);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -86,10 +98,11 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
 
             return RefreshIndicator(
               onRefresh: () async {
-                await context.read<HomeCubit>().getCategories();
+                await context.read<HomeCubit>().refresh();
               },
               color: AppTheme.primary,
               child: CustomScrollView(
+                controller: _scrollController,
                 slivers: [
                   SliverToBoxAdapter(
                     child: Padding(
@@ -199,6 +212,22 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                     ),
                   ),
                   _buildProductsSection(context, state, filteredProducts),
+                  if (state.isLoadingMore)
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Center(
+                          child: SizedBox(
+                            width: 28,
+                            height: 28,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   const SliverToBoxAdapter(child: SizedBox(height: 24)),
                 ],
               ),
@@ -268,10 +297,15 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
             label: category.name ?? '',
             isSelected: isSelected,
             onTap: () {
-              context.read<HomeCubit>().selectCategory(
-                    index: index,
-                    categoryId: category.id,
-                  );
+              if (state.selectedCategoryIndex != index) {
+                if (_scrollController.hasClients) {
+                  _scrollController.jumpTo(0);
+                }
+                context.read<HomeCubit>().selectCategory(
+                      index: index,
+                      categoryId: category.id,
+                    );
+              }
             },
           );
         },
