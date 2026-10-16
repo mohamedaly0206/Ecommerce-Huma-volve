@@ -1,5 +1,6 @@
 import 'package:ecommerce_app_huma_volve/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/theme.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -16,16 +17,12 @@ class _SplashScreenState extends State<SplashScreen> {
     _navigateToNext();
   }
 
- Future<void> _navigateToNext() async {
-  await Future.delayed(const Duration(seconds: 2));
-  if (mounted) {
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.signInScreen,
-      (route) => false, 
-    );
+  Future<void> _navigateToNext() async {
+    await Future.delayed(const Duration(seconds: 2));
+    if (mounted) {
+      context.go(AppRoutes.signInScreen);
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {

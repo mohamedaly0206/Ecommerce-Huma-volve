@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/dummy_data.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/theme.dart';
-import '../../../details/screens/product_details_screen.dart';
 import '../../domain/entities/product_entity.dart';
 
 class ProductCard extends StatelessWidget {
@@ -25,17 +26,9 @@ class ProductCard extends StatelessWidget {
           sizes: const ['S', 'M', 'L', 'XL'],
         );
 
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 500),
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                ProductDetailsScreen(product: detailsProduct),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-          ),
+        context.push(
+          AppRoutes.productDetailsPath((product.id ?? 0).toString()),
+          extra: detailsProduct,
         );
       },
       child: Container(

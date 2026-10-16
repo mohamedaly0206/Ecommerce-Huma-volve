@@ -4,6 +4,7 @@ import 'package:ecommerce_app_huma_volve/features/auth/sign_up/presentation/cubi
 import 'package:ecommerce_app_huma_volve/features/auth/sign_up/presentation/cubit/sign_up_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../core/widgets/custom_text_field.dart';
 import '../../../../../core/widgets/primary_button.dart';
@@ -94,7 +95,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 BlocConsumer<SignUpCubit, SignUpState>(
                   listener: (context, state) {
                     if (state.signUpState.data != null) {
-                      Navigator.pop(context);
+                      context.pop();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Sign Up Successful! Please log in.'),
@@ -133,7 +134,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     const Text('Already have an account? '),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pop(context);
+                        context.pop();
                       },
                       child: Text(
                         'Login',

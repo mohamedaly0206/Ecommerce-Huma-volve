@@ -52,4 +52,9 @@ class HomeApiClient {
         .map((e) => ProductsDto.fromJson(e as Map<String, dynamic>))
         .toList();
   }
+
+  Future<ProductsDto> getProductById(int id) async {
+    final response = await _dio.get('${ApiEndpoints.products}/$id');
+    return ProductsDto.fromJson(response.data as Map<String, dynamic>);
+  }
 }
