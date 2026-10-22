@@ -101,15 +101,8 @@ class UserProfile {
 }
 
 final dummyUser = UserProfile(
-  name: 'John Doe',
-  email: 'john.doe@example.com',
+  name: 'Mohamed Ali',
+  email: 'mo7amed3ly77@gmail.com',
   profilePictureUrl: 'https://picsum.photos/seed/user/150/150',
 );
 
-final dummyCategories = [
-  'All',
-  'Shoes',
-  'Clothing',
-  'Accessories',
-  'Electronics',
-];
