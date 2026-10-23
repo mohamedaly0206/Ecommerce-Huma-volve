@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/dummy_data.dart';
+import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/theme.dart';
 import '../widgets/profile_menu_item.dart';
-import '../../auth/login/presentation/screens/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -17,10 +18,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 24),
             const Text(
               'Profile',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 32),
             Stack(
@@ -35,6 +33,8 @@ class ProfileScreen extends StatelessWidget {
                   child: CircleAvatar(
                     radius: 56,
                     backgroundImage: NetworkImage(dummyUser.profilePictureUrl),
+                    backgroundColor: Colors.transparent,
+                    
                   ),
                 ),
                 Container(
@@ -50,18 +50,12 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               dummyUser.name,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
               dummyUser.email,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 32),
             Expanded(
@@ -99,15 +93,7 @@ class ProfileScreen extends StatelessWidget {
                     title: 'Logout',
                     isDestructive: true,
                     onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        PageRouteBuilder(
-                          pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
-                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                            return FadeTransition(opacity: animation, child: child);
-                          },
-                        ),
-                      );
+                      context.go(AppRoutes.signInScreen);
                     },
                   ),
                 ],

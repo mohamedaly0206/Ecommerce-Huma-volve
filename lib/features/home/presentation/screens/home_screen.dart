@@ -1,7 +1,7 @@
+import 'package:ecommerce_app_huma_volve/config/di/di.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../config/di/di.dart';
 import '../../../../core/dummy_data.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/values/app_strings.dart';
@@ -33,6 +33,7 @@ class _HomeScreenContent extends StatefulWidget {
 
 class _HomeScreenContentState extends State<_HomeScreenContent> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   String _searchQuery = '';
 
   @override
@@ -43,11 +44,26 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
         _searchQuery = _searchController.text.trim().toLowerCase();
       });
     });
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (_searchQuery.isEmpty && _isBottom) {
+      context.read<HomeCubit>().loadMoreProducts();
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll - 200);
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -86,10 +102,11 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
 
             return RefreshIndicator(
               onRefresh: () async {
-                await context.read<HomeCubit>().getCategories();
+                await context.read<HomeCubit>().refresh();
               },
               color: AppTheme.primary,
               child: CustomScrollView(
+                controller: _scrollController,
                 slivers: [
                   SliverToBoxAdapter(
                     child: Padding(
@@ -129,18 +146,16 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                           const SizedBox(height: 32),
                           Text(
                             AppStrings.explore,
-                            style: Theme.of(context)
-                                .textTheme
-                                .displayLarge
-                                ?.copyWith(fontSize: 36),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.displayLarge?.copyWith(fontSize: 36),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             AppStrings.bestTrendyCollection,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(fontSize: 18),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(fontSize: 18),
                           ),
                           const SizedBox(height: 32),
                           Container(
@@ -160,8 +175,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                               controller: _searchController,
                               decoration: InputDecoration(
                                 hintText: AppStrings.searchClothes,
-                                hintStyle:
-                                    TextStyle(color: Colors.grey.shade400),
+                                hintStyle: TextStyle(
+                                  color: Colors.grey.shade400,
+                                ),
                                 prefixIcon: const Icon(
                                   Icons.search,
                                   color: Colors.grey,
@@ -179,8 +195,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                                         margin: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           color: AppTheme.primary,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: const Icon(
                                           Icons.tune,
@@ -199,6 +216,22 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                     ),
                   ),
                   _buildProductsSection(context, state, filteredProducts),
+                  if (state.isLoadingMore)
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Center(
+                          child: SizedBox(
+                            width: 28,
+                            height: 28,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   const SliverToBoxAdapter(child: SizedBox(height: 24)),
                 ],
               ),
@@ -268,10 +301,15 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
             label: category.name ?? '',
             isSelected: isSelected,
             onTap: () {
-              context.read<HomeCubit>().selectCategory(
-                    index: index,
-                    categoryId: category.id,
-                  );
+              if (state.selectedCategoryIndex != index) {
+                if (_scrollController.hasClients) {
+                  _scrollController.jumpTo(0);
+                }
+                context.read<HomeCubit>().selectCategory(
+                  index: index,
+                  categoryId: category.id,
+                );
+              }
             },
           );
         },
@@ -301,11 +339,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
           padding: const EdgeInsets.all(32),
           child: Column(
             children: [
-              const Icon(
-                Icons.error_outline,
-                color: Colors.red,
-                size: 48,
-              ),
+              const Icon(Icons.error_outline, color: Colors.red, size: 48),
               const SizedBox(height: 12),
               Text(
                 state.productsState.errorMessage ??
@@ -321,8 +355,8 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                     context.read<HomeCubit>().getAllProducts();
                   } else {
                     context.read<HomeCubit>().getProductsByCategory(
-                          categoryId: categoryId,
-                        );
+                      categoryId: categoryId,
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -346,11 +380,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
           child: Center(
             child: Column(
               children: [
-                Icon(
-                  Icons.inventory_2_outlined,
-                  size: 48,
-                  color: Colors.grey,
-                ),
+                Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
                 SizedBox(height: 12),
                 Text(
                   AppStrings.noProductsFound,
@@ -372,12 +402,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
         ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            return ProductCard(product: filteredProducts[index]);
-          },
-          childCount: filteredProducts.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          return ProductCard(product: filteredProducts[index]);
+        }, childCount: filteredProducts.length),
       ),
     );
   }
