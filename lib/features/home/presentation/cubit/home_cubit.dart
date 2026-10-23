@@ -25,6 +25,13 @@ class HomeCubit extends Cubit<HomeState> {
     this._getAllProductsUseCase,
   ) : super(const HomeState());
 
+  @override
+  void emit(HomeState state) {
+    if (!isClosed) {
+      super.emit(state);
+    }
+  }
+
   Future<void> init() async {
     await getCategories();
   }
@@ -32,6 +39,7 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> getCategories() async {
     emit(state.copyWith(categoriesState: const BaseState(isLoading: true)));
     final response = await _getCategoriesUseCase.call();
+    if (isClosed) return;
 
     if (response is SuccessBaseResponse<List<CategoryEntity>>) {
       final allCategories = [
@@ -96,6 +104,7 @@ class HomeCubit extends Cubit<HomeState> {
       limit: _limit,
       offset: _offset,
     );
+    if (isClosed) return;
 
     if (response is SuccessBaseResponse<List<ProductEntity>>) {
       final newProducts = response.data;
@@ -164,6 +173,7 @@ class HomeCubit extends Cubit<HomeState> {
       limit: _limit,
       offset: _offset,
     );
+    if (isClosed) return;
 
     if (response is SuccessBaseResponse<List<ProductEntity>>) {
       final newProducts = response.data;

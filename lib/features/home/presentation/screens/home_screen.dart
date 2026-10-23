@@ -1,3 +1,4 @@
+import 'package:ecommerce_app_huma_volve/config/di/di.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,7 +17,10 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _HomeScreenContent();
+    return BlocProvider(
+      create: (context) => getIt<HomeCubit>()..init(),
+      child: const _HomeScreenContent(),
+    );
   }
 }
 
@@ -142,18 +146,16 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                           const SizedBox(height: 32),
                           Text(
                             AppStrings.explore,
-                            style: Theme.of(context)
-                                .textTheme
-                                .displayLarge
-                                ?.copyWith(fontSize: 36),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.displayLarge?.copyWith(fontSize: 36),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             AppStrings.bestTrendyCollection,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(fontSize: 18),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(fontSize: 18),
                           ),
                           const SizedBox(height: 32),
                           Container(
@@ -173,8 +175,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                               controller: _searchController,
                               decoration: InputDecoration(
                                 hintText: AppStrings.searchClothes,
-                                hintStyle:
-                                    TextStyle(color: Colors.grey.shade400),
+                                hintStyle: TextStyle(
+                                  color: Colors.grey.shade400,
+                                ),
                                 prefixIcon: const Icon(
                                   Icons.search,
                                   color: Colors.grey,
@@ -192,8 +195,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                                         margin: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           color: AppTheme.primary,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: const Icon(
                                           Icons.tune,
@@ -302,9 +306,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                   _scrollController.jumpTo(0);
                 }
                 context.read<HomeCubit>().selectCategory(
-                      index: index,
-                      categoryId: category.id,
-                    );
+                  index: index,
+                  categoryId: category.id,
+                );
               }
             },
           );
@@ -335,11 +339,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
           padding: const EdgeInsets.all(32),
           child: Column(
             children: [
-              const Icon(
-                Icons.error_outline,
-                color: Colors.red,
-                size: 48,
-              ),
+              const Icon(Icons.error_outline, color: Colors.red, size: 48),
               const SizedBox(height: 12),
               Text(
                 state.productsState.errorMessage ??
@@ -355,8 +355,8 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
                     context.read<HomeCubit>().getAllProducts();
                   } else {
                     context.read<HomeCubit>().getProductsByCategory(
-                          categoryId: categoryId,
-                        );
+                      categoryId: categoryId,
+                    );
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -380,11 +380,7 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
           child: Center(
             child: Column(
               children: [
-                Icon(
-                  Icons.inventory_2_outlined,
-                  size: 48,
-                  color: Colors.grey,
-                ),
+                Icon(Icons.inventory_2_outlined, size: 48, color: Colors.grey),
                 SizedBox(height: 12),
                 Text(
                   AppStrings.noProductsFound,
@@ -406,12 +402,9 @@ class _HomeScreenContentState extends State<_HomeScreenContent> {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
         ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) {
-            return ProductCard(product: filteredProducts[index]);
-          },
-          childCount: filteredProducts.length,
-        ),
+        delegate: SliverChildBuilderDelegate((context, index) {
+          return ProductCard(product: filteredProducts[index]);
+        }, childCount: filteredProducts.length),
       ),
     );
   }

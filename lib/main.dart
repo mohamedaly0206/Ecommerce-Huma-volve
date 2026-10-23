@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'config/di/di.dart';
 import 'core/routes/app_routers.dart';
 import 'core/theme/theme.dart';
+import 'features/cart/presentation/cubit/cart_cubit.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,11 +18,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'E-Commerce App',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      routerConfig: AppRouters.router,
+    return BlocProvider(
+      create: (context) => getIt<CartCubit>()..getCart(),
+      child: MaterialApp.router(
+        title: 'E-Commerce App',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        routerConfig: AppRouters.router,
+      ),
     );
   }
 }

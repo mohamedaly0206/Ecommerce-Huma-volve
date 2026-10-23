@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -7,6 +8,8 @@ import '../../../core/dummy_data.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/theme.dart';
 import '../../../core/widgets/primary_button.dart';
+import '../../cart/domain/entities/cart_item_entity.dart';
+import '../../cart/presentation/cubit/cart_cubit.dart';
 import '../../home/data/api_client/home_api_client.dart';
 import '../widgets/color_selector.dart';
 import '../widgets/size_selector.dart';
@@ -51,18 +54,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Future<void> _loadProduct(String id) async {
-    // 1. Check in dummy products first
-    final dummy = dummyProducts.where((p) => p.id == id).firstOrNull;
-    if (dummy != null) {
-      if (mounted) {
-        setState(() {
-          _initProduct(dummy);
-        });
-      }
-      return;
-    }
 
-    // 2. Fetch from remote API
+    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -342,6 +335,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     PrimaryButton(
                       text: 'Add to Cart',
                       onPressed: () {
+                        final item = CartItemEntity(
+                          productId: int.tryParse(product.id) ?? 0,
+                          title: product.name,
+                          price: product.price,
+                          imageUrl: product.imageUrl,
+                          quantity: 1,
+                          selectedSize: _selectedSize,
+                          selectedColor: _selectedColor.toARGB32(),
+                        );
+                        context.read<CartCubit>().addToCart(item);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('${product.name} added to cart'),

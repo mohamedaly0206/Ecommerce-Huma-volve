@@ -18,10 +18,7 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 24),
             const Text(
               'Profile',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 32),
             Stack(
@@ -36,6 +33,8 @@ class ProfileScreen extends StatelessWidget {
                   child: CircleAvatar(
                     radius: 56,
                     backgroundImage: NetworkImage(dummyUser.profilePictureUrl),
+                    backgroundColor: Colors.transparent,
+                    
                   ),
                 ),
                 Container(
@@ -51,18 +50,12 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               dummyUser.name,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
               dummyUser.email,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 32),
             Expanded(

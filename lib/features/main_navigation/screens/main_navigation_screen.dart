@@ -1,10 +1,10 @@
-import 'package:ecommerce_app_huma_volve/config/di/di.dart';
-import 'package:ecommerce_app_huma_volve/features/home/presentation/cubit/home_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/theme.dart';
+import '../../cart/presentation/cubit/cart_cubit.dart';
+import '../../cart/presentation/cubit/cart_state.dart';
+import '../../cart/presentation/screens/cart_screen.dart';
 import '../../home/presentation/screens/home_screen.dart';
-import '../../cart/screens/cart_screen.dart';
 import '../../profile/screens/profile_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -17,19 +17,19 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    BlocProvider(
-      create: (context) => getIt<HomeCubit>()..init(),
-      child: const HomeScreen(),
-    ),
-    const CartScreen(),
-    const ProfileScreen(),
+  final List<Widget> _screens = const [
+    HomeScreen(),
+    CartScreen(),
+    ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -56,8 +56,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             showUnselectedLabels: false,
             type: BottomNavigationBarType.fixed,
             elevation: 0,
-            items: const [
-              BottomNavigationBarItem(
+            items: [
+              const BottomNavigationBarItem(
                 icon: Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Icon(Icons.home_filled, size: 28),
@@ -69,17 +69,33 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Icon(Icons.shopping_cart_outlined, size: 28),
+                icon: BlocBuilder<CartCubit, CartState>(
+                  builder: (context, state) {
+                    return Badge(
+                      isLabelVisible: state.itemCount > 0,
+                      label: Text('${state.itemCount}'),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Icon(Icons.shopping_cart_outlined, size: 28),
+                      ),
+                    );
+                  },
                 ),
-                activeIcon: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Icon(Icons.shopping_cart, size: 32),
+                activeIcon: BlocBuilder<CartCubit, CartState>(
+                  builder: (context, state) {
+                    return Badge(
+                      isLabelVisible: state.itemCount > 0,
+                      label: Text('${state.itemCount}'),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Icon(Icons.shopping_cart, size: 32),
+                      ),
+                    );
+                  },
                 ),
                 label: 'Cart',
               ),
-              BottomNavigationBarItem(
+              const BottomNavigationBarItem(
                 icon: Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Icon(Icons.person_outline, size: 28),

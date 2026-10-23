@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/dummy_data.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../cart/domain/entities/cart_item_entity.dart';
+import '../../../cart/presentation/cubit/cart_cubit.dart';
 import '../../domain/entities/product_entity.dart';
 
 class ProductCard extends StatelessWidget {
@@ -133,16 +136,29 @@ class ProductCard extends StatelessWidget {
                             fontSize: 18,
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: AppTheme.primary,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                            size: 16,
+                        GestureDetector(
+                          onTap: () {
+                            final item = CartItemEntity(
+                              productId: product.id ?? 0,
+                              title: product.title ?? '',
+                              price: (product.price ?? 0).toDouble(),
+                              imageUrl: product.firstImage,
+                              quantity: 1,
+                              selectedSize: 'M',
+                            );
+                            context.read<CartCubit>().addToCart(item);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: AppTheme.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 16,
+                            ),
                           ),
                         ),
                       ],

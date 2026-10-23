@@ -13,6 +13,13 @@ class SignInCubit extends Cubit<SignInState> {
 
   SignInCubit(this._signInUseCase) : super(const SignInState());
 
+  @override
+  void emit(SignInState state) {
+    if (!isClosed) {
+      super.emit(state);
+    }
+  }
+
   void toggleRememberMe(bool value) {
     emit(state.copyWith(rememberMe: value));
   }
